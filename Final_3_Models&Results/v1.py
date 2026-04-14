@@ -14,16 +14,11 @@ import warnings
 warnings.filterwarnings('ignore')
 
 
-# ====================
-# LOAD DATA
-# ====================
 print("Loading dataset...")
 df = pd.read_excel("Sheet1.xlsx", sheet_name=0)
 print(f"Dataset shape: {df.shape}")
 
-# ====================
-# TARGET LABEL
-# ====================
+#Label tagetting
 def label_long_covid(id_str):
     if isinstance(id_str, str):
         if id_str.endswith('.C') or id_str.endswith('.CVC'):
@@ -36,9 +31,7 @@ df['Long_COVID'] = df['x0_LC_ID'].apply(label_long_covid)
 print("\nTarget distribution (0=No LC, 1=LC):")
 print(df['Long_COVID'].value_counts())
 
-# ====================
-# REMOVE METADATA / LEAKAGE
-# ====================
+#Ignore bad columnts
 base_metadata_cols = [
     'x0_LC_ID',
     'Long_COVID',
@@ -57,9 +50,7 @@ survey_cols = [col for col in df.columns if 'x0_Symp_Survey_' in col]
 metadata_cols = base_metadata_cols + survey_cols
 feature_cols = [col for col in df.columns if col not in metadata_cols]
 
-# ====================
-# KEEP NUMERIC FEATURES
-# ====================
+
 numeric_features = []
 for col in feature_cols:
     try:
@@ -95,25 +86,19 @@ y = y[valid_idx]
 print(f"\nFinal dataset for model: {X.shape}")
 print(f"LC cases: {y.sum()} | Controls: {(y==0).sum()}")
 
-# ====================
-# TRAIN / TEST SPLIT
-# ====================
+#Split between training and testing
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.2, random_state=42, stratify=y
 )
 
-# ====================
-# FEATURE SELECTION
-# ====================
+#Select correct features
 selector = SelectKBest(score_func=f_classif, k=min(100, X_train.shape[1]))  # keep top 100 features
 X_train_sel = selector.fit_transform(X_train, y_train)
 X_test_sel = selector.transform(X_test)
 selected_features = np.array(numeric_features)[selector.get_support()].tolist()
 print(f"\nSelected top {len(selected_features)} features for modeling.")
 
-# ====================
-# MODEL DEFINITIONS
-# ====================
+#define models
 rf_model = RandomForestClassifier(
     n_estimators=200, max_depth=15,
     min_samples_split=5, min_samples_leaf=2,
@@ -143,9 +128,7 @@ models = {
 
 cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
 
-# ====================
-# TRAINING & EVALUATION
-# ====================
+#start training
 results = []
 
 for name, model in models.items():
@@ -175,9 +158,7 @@ for name, model in models.items():
 
     results.append((name, cv_scores.mean()))
 
-# ====================
-# FEATURE IMPORTANCE
-# ====================
+#rank feature importance
 rf_model.fit(X_train_sel, y_train)
 importance = pd.DataFrame({
     'feature': selected_features,
@@ -188,9 +169,7 @@ print("\nTop 15 Biomarkers/Features:")
 print(importance.head(15).to_string(index=False))
 importance.to_csv("feature_importance_biological.csv", index=False)
 
-# ====================
-# RESULTS SUMMARY
-# ====================
+#display results
 best_model = max(results, key=lambda x: x[1])
 print(f"\nBest Performing Model: {best_model[0]} (Mean ROC-AUC = {best_model[1]:.4f})")
 print("\nAnalysis complete.")

@@ -362,7 +362,7 @@ def final_refit_importance(X, y, model_name, out_dir):
     out = out.sort_values('importance', ascending=False)
     out.to_csv(os.path.join(out_dir, f"final_{model_name}_feature_importance.csv"), index=False)
 
-    # NEW: Save top 15 biomarkers
+    #Record the top 15 biomarkers to display later
     top15 = out.head(15)
     top15.to_csv(os.path.join(out_dir, f"final_{model_name}_top15_biomarkers.csv"), index=False)
 
