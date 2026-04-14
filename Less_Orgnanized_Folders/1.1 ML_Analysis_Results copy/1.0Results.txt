@@ -1,0 +1,165 @@
+(base) noahst.jean@Noahs-MBP-4 CMPT 470 (Bioinformatics) % python -u "/Users/noahst.jean/Downloads/School/TWU/Current Classes/CMPT 470 (Bioinformatics)/1.0 ML_Analy
+sis_Results/comprehensive_model_analysis.py"
+======================================================================
+LONG COVID PREDICTION: COMPREHENSIVE ML ANALYSIS
+======================================================================
+
+[1/4] Loading and preparing data...
+✓ Loaded 7,403 numeric biomarker features
+✓ Dataset shape: (185, 7403)
+✓ Long COVID cases: 7 | Non-cases: 178
+✓ Train set: 284 samples (SMOTE applied)
+✓ Test set: 37 samples
+
+[2/4] Training Random Forest Classifier...
+✓ Random Forest trained
+  - Test ROC-AUC: 1.0000
+  - CV ROC-AUC: 0.9971 ± 0.0057
+
+[3/4] Training Gradient Boosting Classifier...
+✓ Gradient Boosting trained
+  - Test ROC-AUC: 1.0000
+  - CV ROC-AUC: 0.5837 ± 0.2384
+
+[4/4] Training Logistic Regression...
+✓ Logistic Regression trained
+  - Test ROC-AUC: 0.9444
+  - CV ROC-AUC: 0.8310 ± 0.1184
+
+======================================================================
+COMPREHENSIVE MODEL COMPARISON RESULTS
+======================================================================
+
+Test Set Performance Metrics:
+              Model Accuracy Precision Recall F1-Score ROC-AUC
+      Random Forest   1.0000    1.0000 1.0000   1.0000  1.0000
+  Gradient Boosting   1.0000    1.0000 1.0000   1.0000  1.0000
+Logistic Regression   0.9459    0.3333 1.0000   0.5000  0.9444
+✓ Saved model_comparison_results.csv
+
+======================================================================
+TOP 15 BIOMARKERS - RANDOM FOREST
+======================================================================
+                                                                      Feature  Importance
+x1_SI_HSV1_Patient_Report_No_stage_Unmapped_AGXXEKD_Motif_Family_7_zscore_Max    0.012599
+                                    x1_Cytokines_CCL8_Obs_Conc_pg/mL_GG3.2_ML    0.011258
+                                    x1_Cytokines_CCL2_Obs_Conc_pg/mL_GG3.2_ML    0.009748
+                                   x1_Cytokines_IL-24_Obs_Conc_ng/mL_GG4.4_ML    0.009394
+                                   x1_Cytokines_IL-21_Obs_Conc_pg/mL_GG4.2_ML    0.009197
+                                   x1_Cytokines_CCL15_Obs_Conc_pg/mL_GG3.2_ML    0.008977
+                                     x1_Cytokines_MSH_Obs_Conc_pg/mL_GG2.3_ML    0.008929
+                                  x1_Cytokines_IL-17A_Obs_Conc_pg/mL_GG4.7_ML    0.008881
+       x1_SI_Cytomegalovirus_Patient_Report_No_stage_Viral_All_motif_ScoreSum    0.008845
+                                   x1_Cytokines_FGF2_Obs_Conc_pg/mL_GG14.2_ML    0.008614
+                                   x1_Cytokines_IL-23_Obs_Conc_pg/mL_GG4.5_ML    0.008330
+                                x1_Cytokines_Insulin_Obs_Conc_pg/mL_GG21.5_ML    0.008314
+                                   x1_Cytokines_CCL26_Obs_Conc_pg/mL_GG3.2_ML    0.007960
+                             x1_Cytokines_Neurotensin_Obs_Conc_pg/mL_GG2.4_ML    0.007937
+                                  x1_Cytokines_CXCL12_Obs_Conc_pg/mL_GG3.3_ML    0.007775
+
+======================================================================
+TOP 15 BIOMARKERS - GRADIENT BOOSTING
+======================================================================
+                                                                                                                       Feature  Importance
+                                                                                                           x0_Vac_Status_First    0.332795
+                                                                                                         x0_Acute_COVID19_Hosp    0.139200
+                                                                                                            x0_Vac_Num_at_Draw    0.105181
+                                                                                    x1_Cytokines_CCL22_Obs_Conc_pg/mL_GG3.2_ML    0.099733
+                                                                                       x1_Flow_Cyt_PD1pCD8TemraofCD8_GG33.5_ML    0.060634
+                                                                                    x1_Cytokines_CCL20_Obs_Conc_pg/mL_GG3.2_ML    0.037456
+                                                                                x1_Cytokines_Perforin_Obs_Conc_pg/mL_GG29.1_ML    0.036707
+                                                                                    x1_Cytokines_CCL18_Obs_Conc_pg/mL_GG3.2_ML    0.030080
+                                                                                                                 x0_PMH_kidney    0.022777
+                                                                                            x1_Flow_Cyt_CD8TexofLivenumber_ML2    0.019435
+x1_SI_EBV_Patient_Report_Latent_and_Mono_small_capsomere_interacting_protein_(BFRF3)_PX[DNE]TXPR_Motif_Family_35_zscore_Max_ML    0.014082
+                                                x1_SI_Helicobacter_pylori_Patient_Report_No_stage_Bacterial_All_motif_ScoreSum    0.013679
+                                                                                             x1_Flow_Cyt_HLADRncMonoMFInonnorm    0.011701
+                                                                                    x1_Cytokines_IL-27_Obs_Conc_pg/mL_GG4.5_ML    0.011549
+                                                           x1_SI_Dengue_Virus_Patient_Report_No_stage_Viral_All_motif_ScoreSum    0.008706
+
+======================================================================
+TOP 15 BIOMARKERS - LOGISTIC REGRESSION (by absolute coefficient)
+======================================================================
+                                                                                   Feature  Coefficient
+                                                           x1_Flow_Cyt_DC2ofLive_GG31.3_ML    -0.104320
+                                                 x1_Cytokines_CCL5_Obs_Conc_pg/mL_GG3.2_ML    -0.102524
+                                                         x1_Flow_Cyt_HLADRncMonoMFInonnorm     0.100927
+                                                                               x0_PMH_none    -0.099370
+                                                                     x1_ELISA_S_Tot_800_ML    -0.097266
+                                                                             x1_RBD_800_ML    -0.093130
+                                                                           x1_Flow_Cyt_DC1    -0.091949
+                                                                           x1_Flow_Cyt_DC2    -0.083772
+                                                     x1_Flow_Cyt_CD8PD1pTemofCD8_GG33.9_ML     0.082108
+                                                        x1_Flow_Cyt_cMonoofLive_GG_30.7_ML    -0.081647
+                                                              x1_Flow_Cyt_CD8PD1pTemofLive     0.081076
+x1_SI_SARS_CoV_2_SCSCoV2_Panel_No_stage_Spike_KXG[ACT]PXXXXP_Motif_Family_34_zscore_Max_ML    -0.081054
+   x1_SI_EBV_Patient_Report_Latent_and_Mono_EBNA6_QXT[ART]PR_Motif_Family_29_zscore_Max_ML    -0.078611
+                                             x1_Cytokines_PDGF-AA_Obs_Conc_pg/mL_GG14.5_ML    -0.077517
+                                                                  x1_Flow_Cyt_NaiveBofLive    -0.077466
+
+======================================================================
+DETAILED MODEL EVALUATION
+======================================================================
+
+Random Forest:
+  Confusion Matrix:
+    TN=36, FP=0, FN=0, TP=1
+
+  Classification Report:
+               precision    recall  f1-score   support
+
+No Long COVID       1.00      1.00      1.00        36
+   Long COVID       1.00      1.00      1.00         1
+
+     accuracy                           1.00        37
+    macro avg       1.00      1.00      1.00        37
+ weighted avg       1.00      1.00      1.00        37
+
+
+Gradient Boosting:
+  Confusion Matrix:
+    TN=36, FP=0, FN=0, TP=1
+
+  Classification Report:
+               precision    recall  f1-score   support
+
+No Long COVID       1.00      1.00      1.00        36
+   Long COVID       1.00      1.00      1.00         1
+
+     accuracy                           1.00        37
+    macro avg       1.00      1.00      1.00        37
+ weighted avg       1.00      1.00      1.00        37
+
+
+Logistic Regression:
+  Confusion Matrix:
+    TN=34, FP=2, FN=0, TP=1
+
+  Classification Report:
+               precision    recall  f1-score   support
+
+No Long COVID       1.00      0.94      0.97        36
+   Long COVID       0.33      1.00      0.50         1
+
+     accuracy                           0.95        37
+    macro avg       0.67      0.97      0.74        37
+ weighted avg       0.98      0.95      0.96        37
+
+
+======================================================================
+CROSS-VALIDATION RESULTS (5-Fold)
+======================================================================
+Random Forest:      0.9971 ± 0.0057
+Gradient Boosting:  0.5837 ± 0.2384
+Logistic Regression: 0.8310 ± 0.1184
+
+✓ Best performing model: Random Forest (ROC-AUC: 1.0000)
+
+======================================================================
+ANALYSIS COMPLETE
+======================================================================
+Summary files saved:
+  - model_comparison_results.csv
+  - rf_feature_importance.csv
+  - gb_feature_importance.csv
+  - lr_feature_importance.csv

@@ -1,0 +1,471 @@
+import pandas as pd
+import numpy as np
+from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import LeaveOneOut
+from sklearn.metrics import roc_auc_score, accuracy_score, f1_score, confusion_matrix, classification_report
+from sklearn.feature_selection import SelectFromModel
+from sklearn.utils.class_weight import compute_sample_weight
+import warnings
+
+warnings.filterwarnings('ignore')
+
+# ==========================================
+# 1. LOAD & CLEAN DATA
+# ==========================================
+print("Loading Sheet1 (Biomarkers)...")
+df = pd.read_excel("Sheet1.xlsx", sheet_name=0)
+
+target_col = 'x0_Censor_Complete'
+metadata_cols = ['x0_LC_ID', 'x0_Censor_Complete', 'x0_Censor_Cohort_ID', 
+                 'x0_Patient_Cluster_Label', 'x0_Patient_Cluster',
+                 'x0_Censor_Oral_Steroid', 'x0_Censor_Pit_Adre_Dysfunction',
+                 'x0_Censor_Pregnancy']
+
+X_df = df.drop(columns=[c for c in metadata_cols if c in df.columns])
+y_raw = df[target_col].values
+
+# Binarize Target: 0 -> Healthy, (1 or 2) -> Long COVID
+y = (y_raw > 0).astype(int)
+
+# Fix 'NaN;' and missing values
+X_df = X_df.apply(pd.to_numeric, errors='coerce').fillna(0)
+feature_names = X_df.columns.tolist()
+X_values = X_df.values 
+
+print(f"Dataset Ready: {X_values.shape[0]} samples, {X_values.shape[1]} features.")
+print(f"Target Distribution: {np.bincount(y)} (0=Healthy, 1=Long COVID)")
+
+# ==========================================
+# 2. DEFINE MODELS
+# ==========================================
+models = {
+    "Random Forest": RandomForestClassifier(
+        n_estimators=100, class_weight='balanced', max_depth=3, min_samples_leaf=5, random_state=42
+    ),
+    "Logistic Regression": LogisticRegression(
+        class_weight='balanced', solver='liblinear', C=0.1, random_state=42
+    ),
+    "Gradient Boosting": GradientBoostingClassifier(
+        n_estimators=100, learning_rate=0.05, max_depth=2, random_state=42
+    )
+}
+
+# ==========================================
+# 3. LOOCV EXECUTION FOR EACH MODEL
+# ==========================================
+loo = LeaveOneOut()
+model_summaries = {}
+
+for name, model in models.items():
+    print(f"\nEvaluating {name} via LOOCV...")
+    all_probas = []
+    all_preds = []
+
+    for train_index, test_index in loo.split(X_values):
+        X_train, X_test = X_values[train_index], X_values[test_index]
+        y_train, y_test = y[train_index], y[test_index]
+
+        # Feature Selection inside the loop
+        selector = SelectFromModel(
+            LogisticRegression(penalty='l1', solver='liblinear', class_weight='balanced', C=0.1, random_state=42)
+        )
+        X_train_sel = selector.fit_transform(X_train, y_train)
+        X_test_sel = selector.transform(X_test)
+
+        # Gradient Boosting needs sample weights manually
+        if name == "Gradient Boosting":
+            sw = compute_sample_weight(class_weight='balanced', y=y_train)
+            model.fit(X_train_sel, y_train, sample_weight=sw)
+        else:
+            model.fit(X_train_sel, y_train)
+
+        all_probas.append(model.predict_proba(X_test_sel)[:, 1][0])
+        all_preds.append(model.predict(X_test_sel)[0])
+
+    # Store results
+    model_summaries[name] = {
+        'auc': roc_auc_score(y, all_probas),
+        'acc': accuracy_score(y, all_preds),
+        'f1': f1_score(y, all_preds),
+        'matrix': confusion_matrix(y, all_preds),
+        'report': classification_report(y, all_preds, target_names=['Healthy', 'Long COVID'])
+    }
+
+# ==========================================
+# 4. FINAL COMPARATIVE OUTPUT
+# ==========================================
+print("\n" + "="*70)
+print("FINAL MODEL COMPARISON (LOOCV)")
+print("="*70)
+print(f"{'Model Name':<20} | {'ROC-AUC':<10} | {'Accuracy':<10} | {'F1-Score'}")
+print("-" * 70)
+
+for name, stats in model_summaries.items():
+    print(f"{name:<20} | {stats['auc']:<10.4f} | {stats['acc']:<10.4f} | {stats['f1']:.4f}")
+
+# Detail for each
+for name, stats in model_summaries.items():
+    print(f"\n--- DETAILED REPORT: {name} ---")
+    print(f"Confusion Matrix:\n{stats['matrix']}")
+    print(f"Full Metrics:\n{stats['report']}")
+
+    import pandas as pd
+import numpy as np
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split, cross_val_score, StratifiedKFold
+from sklearn.metrics import (
+    accuracy_score, precision_score, recall_score, f1_score, 
+    roc_auc_score, confusion_matrix, classification_report
+)
+from sklearn.feature_selection import SelectFromModel
+from sklearn.linear_model import LogisticRegression
+import warnings
+warnings.filterwarnings('ignore')
+
+# Load datasets
+print("Loading datasets...")
+df_biomarkers = pd.read_excel("Sheet1.xlsx", sheet_name=0)
+
+# Identify the target variable
+target_col = 'x0_Censor_Complete'
+print(f"\nTarget variable: {target_col}")
+
+metadata_cols = ['x0_LC_ID', 'x0_Censor_Complete', 'x0_Censor_Cohort_ID', 
+                 'x0_Patient_Cluster_Label', 'x0_Patient_Cluster',
+                 'x0_Censor_Oral_Steroid', 'x0_Censor_Pit_Adre_Dysfunction',
+                 'x0_Censor_Pregnancy']
+
+X = df_biomarkers.drop(columns=[c for c in metadata_cols if c in df_biomarkers.columns])
+y = df_biomarkers[target_col]
+feature_names = X.columns
+
+print(f"Dataset shape: {X.shape}")
+
+# Train/Test Split
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42, stratify=y
+)
+
+# Feature Selection to avoid high-dimensional overfitting
+print("Performing feature selection...")
+selector = SelectFromModel(
+    LogisticRegression(penalty='l1', solver='liblinear', class_weight='balanced', C=0.1, random_state=42)
+)
+X_train_sel = selector.fit_transform(X_train, y_train)
+X_test_sel = selector.transform(X_test)
+selected_features = feature_names[selector.get_support()]
+
+print(f"Using {len(selected_features)} robust features for training.")
+
+# Initialize Cost-Sensitive Random Forest
+rf_model = RandomForestClassifier(
+    n_estimators=100, 
+    class_weight='balanced', 
+    max_depth=5, 
+    min_samples_leaf=3,
+    random_state=42
+)
+
+rf_model.fit(X_train_sel, y_train)
+y_pred = rf_model.predict(X_test_sel)
+y_pred_proba = rf_model.predict_proba(X_test_sel)[:, 1]
+
+# Cross-Validation
+cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+cv_scores = cross_val_score(rf_model, X_train_sel, y_train, cv=cv, scoring='roc_auc')
+
+print("\n" + "="*60)
+print("TOP MOST IMPORTANT FEATURES")
+print("="*60)
+
+feature_importance = pd.DataFrame({
+    'feature': selected_features,
+    'importance': rf_model.feature_importances_
+}).sort_values('importance', ascending=False)
+
+print(feature_importance.head(20).to_string(index=False))
+
+# Save results
+print("\n" + "="*60)
+print("SAVING RESULTS")
+print("="*60)
+
+feature_importance.to_csv('feature_importance.csv', index=False)
+print("✓ Saved feature_importance.csv")
+
+results_df = pd.DataFrame({
+    'actual': y_test.values,
+    'predicted': y_pred,
+    'probability': y_pred_proba
+})
+results_df.to_csv('predictions.csv', index=False)
+print("✓ Saved predictions.csv")
+
+"""
+Comprehensive Machine Learning Analysis for Long COVID Prediction
+Trains Random Forest, Gradient Boosting, and Logistic Regression models
+(UPDATED: Added Data Cleaning to handle 'NaN;' strings)
+"""
+
+import pandas as pd
+import numpy as np
+from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import train_test_split, cross_val_score, StratifiedKFold
+from sklearn.metrics import (
+    accuracy_score, precision_score, recall_score, f1_score, 
+    roc_auc_score, confusion_matrix, classification_report
+)
+from sklearn.feature_selection import SelectFromModel
+from sklearn.utils.class_weight import compute_sample_weight
+import warnings
+warnings.filterwarnings('ignore')
+
+# ====================
+# DATA LOADING & PREP
+# ====================
+print("="*70)
+print("LONG COVID PREDICTION: COMPREHENSIVE ML ANALYSIS")
+print("="*70)
+
+print("\n[1/4] Loading and preparing data...")
+
+# Load the file
+df_biomarkers = pd.read_excel("Sheet1.xlsx", sheet_name=0)
+
+# Target and metadata columns
+target_col = 'x0_Censor_Complete'
+metadata_cols = ['x0_LC_ID', 'x0_Censor_Complete', 'x0_Censor_Cohort_ID', 
+                 'x0_Patient_Cluster_Label', 'x0_Patient_Cluster',
+                 'x0_Censor_Oral_Steroid', 'x0_Censor_Pit_Adre_Dysfunction',
+                 'x0_Censor_Pregnancy']
+
+# Separate features and target
+X = df_biomarkers.drop(columns=[c for c in metadata_cols if c in df_biomarkers.columns])
+y = df_biomarkers[target_col]
+
+# --- DATA CLEANING STEP (FIX FOR 'NaN;' ERROR) ---
+print("✓ Cleaning data (converting strings like 'NaN;' to numeric)...")
+# errors='coerce' turns non-numeric strings (like 'NaN;') into actual NaNs
+X = X.apply(pd.to_numeric, errors='coerce')
+
+# Handle the resulting missing values (Fill with 0 or Median)
+if X.isnull().values.any():
+    missing_count = X.isnull().sum().sum()
+    print(f"⚠ Fixed {missing_count} non-numeric/missing values by setting them to 0.")
+    X = X.fillna(0)
+# ------------------------------------------------
+
+feature_names = X.columns
+print(f"✓ Loaded {X.shape[1]:,} numeric biomarker features")
+print(f"✓ Dataset shape: {X.shape}")
+print(f"✓ Long COVID cases: {(y==1).sum()} | Non-cases: {(y==0).sum()}")
+
+# Train/Test Split (Stratified)
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42, stratify=y
+)
+
+# ====================
+# FEATURE SELECTION
+# ====================
+print("\n[2/4] Performing L1 Feature Selection (LASSO)...")
+selector = SelectFromModel(
+    LogisticRegression(penalty='l1', solver='liblinear', class_weight='balanced', C=0.1, random_state=42)
+)
+
+X_train_sel = selector.fit_transform(X_train, y_train)
+X_test_sel = selector.transform(X_test)
+
+selected_mask = selector.get_support()
+selected_features = feature_names[selected_mask]
+print(f"✓ Reduced feature space to {len(selected_features)} highly predictive features")
+
+sample_weights_train = compute_sample_weight(class_weight='balanced', y=y_train)
+
+# ====================
+# MODEL TRAINING
+# ====================
+print("\n[3/4] Training and Evaluating Models...")
+
+results_list = []
+
+rf_model = RandomForestClassifier(
+    n_estimators=100, class_weight='balanced', max_depth=5, min_samples_leaf=3, random_state=42
+)
+rf_model.fit(X_train_sel, y_train)
+rf_pred = rf_model.predict(X_test_sel)
+rf_pred_proba = rf_model.predict_proba(X_test_sel)[:, 1]
+
+gb_model = GradientBoostingClassifier(
+    n_estimators=100, max_depth=3, min_samples_leaf=3, random_state=42
+)
+gb_model.fit(X_train_sel, y_train, sample_weight=sample_weights_train)
+gb_pred = gb_model.predict(X_test_sel)
+gb_pred_proba = gb_model.predict_proba(X_test_sel)[:, 1]
+
+lr_model = LogisticRegression(
+    max_iter=1000, class_weight='balanced', C=0.1, random_state=42
+)
+lr_model.fit(X_train_sel, y_train)
+lr_pred = lr_model.predict(X_test_sel)
+lr_pred_proba = lr_model.predict_proba(X_test_sel)[:, 1]
+
+# Cross Validation (Using 3 folds due to tiny minority class size of 5)
+cv = StratifiedKFold(n_splits=3, shuffle=True, random_state=42)
+rf_cv = cross_val_score(rf_model, X_train_sel, y_train, cv=cv, scoring='roc_auc')
+gb_cv = cross_val_score(gb_model, X_train_sel, y_train, cv=cv, scoring='roc_auc') 
+lr_cv = cross_val_score(lr_model, X_train_sel, y_train, cv=cv, scoring='roc_auc')
+
+models = [
+    ('Random Forest', rf_pred, rf_pred_proba, rf_cv, rf_model),
+    ('Gradient Boosting', gb_pred, gb_pred_proba, gb_cv, gb_model),
+    ('Logistic Regression', lr_pred, lr_pred_proba, lr_cv, lr_model)
+]
+
+for name, pred, proba, cv_scores, model in models:
+    results_list.append({
+        'Model': name,
+        'Accuracy': accuracy_score(y_test, pred),
+        'Precision': precision_score(y_test, pred, zero_division=0),
+        'Recall': recall_score(y_test, pred, zero_division=0),
+        'F1-Score': f1_score(y_test, pred, zero_division=0),
+        'ROC-AUC (Test)': roc_auc_score(y_test, proba) if len(np.unique(y_test)) > 1 else np.nan,
+        'ROC-AUC (CV Mean)': cv_scores.mean(),
+        'predictions': pred
+    })
+
+results_df = pd.DataFrame([{k: v for k, v in r.items() if k != 'predictions'} for r in results_list])
+results_df.to_csv('model_comparison_results.csv', index=False)
+
+# ====================
+# FEATURE IMPORTANCE
+# ====================
+rf_importance = pd.DataFrame({'Feature': selected_features, 'Importance': rf_model.feature_importances_}).sort_values('Importance', ascending=False)
+gb_importance = pd.DataFrame({'Feature': selected_features, 'Importance': gb_model.feature_importances_}).sort_values('Importance', ascending=False)
+lr_importance = pd.DataFrame({'Feature': selected_features, 'Coefficient': lr_model.coef_[0]}).sort_values('Coefficient', ascending=False)
+
+rf_importance.to_csv('rf_feature_importance.csv', index=False)
+gb_importance.to_csv('gb_feature_importance.csv', index=False)
+lr_importance.to_csv('lr_feature_importance.csv', index=False)
+
+print("\n" + "="*70)
+print("COMPREHENSIVE MODEL COMPARISON RESULTS")
+print("="*70)
+print(results_df.to_string(index=False))
+
+print("\n" + "="*70)
+print("ANALYSIS COMPLETE")
+print("="*70)
+
+"""
+Comparative Analysis: Biomarkers vs. Clinical Features for Long COVID Prediction
+Trains models on both Sheet1 (biomarkers) and Sheet2 (clinical) separately, then compares
+(UPDATED to use Cost-Sensitive Learning, L1 Regularization, and prevent overfitting)
+"""
+
+import pandas as pd
+import numpy as np
+from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import train_test_split, cross_val_score, StratifiedKFold
+from sklearn.metrics import roc_auc_score, accuracy_score
+from sklearn.feature_selection import SelectFromModel
+from sklearn.utils.class_weight import compute_sample_weight
+import warnings
+warnings.filterwarnings('ignore')
+
+def train_and_evaluate_models(X, y, dataset_name, random_state=42):
+    """Train robust models and return results"""
+    
+    # Handle class imbalance - stratify
+    min_class_count = min(y.value_counts().values)
+    use_stratify = True if min_class_count >= 2 else False
+    
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.2, random_state=random_state, 
+        stratify=(y if use_stratify else None)
+    )
+    
+    # Feature Selection (crucial for biomarkers, harmless for clinical)
+    selector = SelectFromModel(
+        LogisticRegression(penalty='l1', solver='liblinear', class_weight='balanced', C=0.2, random_state=random_state)
+    )
+    X_train_sel = selector.fit_transform(X_train, y_train)
+    X_test_sel = selector.transform(X_test)
+    
+    print(f"[{dataset_name}] Selected {X_train_sel.shape[1]} features from original {X.shape[1]}")
+
+    sample_weights_train = compute_sample_weight(class_weight='balanced', y=y_train)
+
+    models = {
+        'Random Forest': RandomForestClassifier(n_estimators=100, class_weight='balanced', max_depth=5, min_samples_leaf=3, random_state=random_state),
+        'Gradient Boosting': GradientBoostingClassifier(n_estimators=100, max_depth=3, min_samples_leaf=3, random_state=random_state),
+        'Logistic Regression': LogisticRegression(max_iter=1000, class_weight='balanced', C=0.1, random_state=random_state)
+    }
+    
+    results = {}
+    cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=random_state)
+    
+    for name, model in models.items():
+        # Fit model (GB needs sample_weight passed directly)
+        if name == 'Gradient Boosting':
+            model.fit(X_train_sel, y_train, sample_weight=sample_weights_train)
+        else:
+            model.fit(X_train_sel, y_train)
+            
+        y_pred = model.predict(X_test_sel)
+        y_proba = model.predict_proba(X_test_sel)[:, 1] if len(np.unique(y_train)) > 1 else y_pred
+        
+        # Safe ROC-AUC calc
+        if len(np.unique(y_test)) > 1:
+            roc = roc_auc_score(y_test, y_proba)
+        else:
+            roc = np.nan
+            
+        cv_scores = cross_val_score(model, X_train_sel, y_train, cv=cv, scoring='roc_auc')
+            
+        results[name] = {
+            'Test_ROC_AUC': roc,
+            'Test_Accuracy': accuracy_score(y_test, y_pred),
+            'CV_ROC_AUC_Mean': cv_scores.mean(),
+            'CV_ROC_AUC_Std': cv_scores.std()
+        }
+        
+    return results
+
+# =====================================================================
+# Main Execution
+# =====================================================================
+if __name__ == "__main__":
+    print("Loading Datasets...")
+    df_bio = pd.read_excel("Sheet1.xlsx", sheet_name=0)
+    df_clin = pd.read_excel("Sheet2.xlsx", sheet_name=1)
+
+    target_col = 'x0_Censor_Complete'
+    meta_cols = ['x0_LC_ID', 'x0_Censor_Complete', 'x0_Censor_Cohort_ID', 'x0_Patient_Cluster_Label', 'x0_Patient_Cluster', 'x0_Censor_Oral_Steroid', 'x0_Censor_Pit_Adre_Dysfunction', 'x0_Censor_Pregnancy']
+
+    X_bio = df_bio.drop(columns=[c for c in meta_cols if c in df_bio.columns])
+    y_bio = df_bio[target_col]
+    
+    X_clin = df_clin.drop(columns=[c for c in meta_cols if c in df_clin.columns])
+    y_clin = df_clin[target_col]
+
+    print("\n--- Evaluating Biomarker Data ---")
+    bio_results = train_and_evaluate_models(X_bio, y_bio, "Biomarkers")
+    
+    print("\n--- Evaluating Clinical Data ---")
+    clin_results = train_and_evaluate_models(X_clin, y_clin, "Clinical")
+
+    print("\n" + "="*80)
+    print("COMPARATIVE ANALYSIS RESULTS (ROBUST PIPELINE)")
+    print("="*80)
+    
+    print("\nModel Performance (Test ROC-AUC):")
+    print(f"{'Model':<20} | {'Biomarkers':<15} | {'Clinical Data'}")
+    print("-" * 55)
+    for model in bio_results.keys():
+        b_roc = bio_results[model]['Test_ROC_AUC']
+        c_roc = clin_results[model]['Test_ROC_AUC']
+        print(f"{model:<20} | {b_roc:<15.4f} | {c_roc:.4f}")
