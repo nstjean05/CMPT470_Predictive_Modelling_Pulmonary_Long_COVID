@@ -1,8 +1,0 @@
-{
-  "timestamp": "20260413_152133",
-  "n_samples": 185,
-  "n_features_after_filter": 6746,
-  "n_positive": 101,
-  "n_negative": 84,
-  "target_source": "x0_LC_ID suffix"
-}

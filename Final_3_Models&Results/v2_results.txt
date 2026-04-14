@@ -1,0 +1,65 @@
+Loading Sheet1 (Biomarkers)...
+Dataset Ready: 185 samples, 7421 features.
+Target Distribution: [ 84 101] (0=Control, 1=Long COVID)
+
+Evaluating Random Forest via LOOCV...
+
+Evaluating Logistic Regression via LOOCV...
+
+Evaluating Gradient Boosting via LOOCV...
+
+======================================================================
+FINAL MODEL COMPARISON (LOOCV)
+======================================================================
+Model Name           | ROC-AUC    | Accuracy   | F1-Score
+----------------------------------------------------------------------
+Random Forest        | 0.9868     | 0.9622     | 0.9652
+Logistic Regression  | 0.9510     | 0.9243     | 0.9314
+Gradient Boosting    | 0.9789     | 0.9297     | 0.9353
+
+--- DETAILED REPORT: Random Forest ---
+Confusion Matrix:
+[[81  3]
+ [ 4 97]]
+Full Metrics:
+              precision    recall  f1-score   support
+
+     Control       0.95      0.96      0.96        84
+  Long COVID       0.97      0.96      0.97       101
+
+    accuracy                           0.96       185
+   macro avg       0.96      0.96      0.96       185
+weighted avg       0.96      0.96      0.96       185
+
+
+--- DETAILED REPORT: Logistic Regression ---
+Confusion Matrix:
+[[76  8]
+ [ 6 95]]
+Full Metrics:
+              precision    recall  f1-score   support
+
+     Control       0.93      0.90      0.92        84
+  Long COVID       0.92      0.94      0.93       101
+
+    accuracy                           0.92       185
+   macro avg       0.92      0.92      0.92       185
+weighted avg       0.92      0.92      0.92       185
+
+
+--- DETAILED REPORT: Gradient Boosting ---
+Confusion Matrix:
+[[78  6]
+ [ 7 94]]
+Full Metrics:
+              precision    recall  f1-score   support
+
+     Control       0.92      0.93      0.92        84
+  Long COVID       0.94      0.93      0.94       101
+
+    accuracy                           0.93       185
+   macro avg       0.93      0.93      0.93       185
+weighted avg       0.93      0.93      0.93       185
+
+
+Saved feature_importance_fixed_2_0.csv

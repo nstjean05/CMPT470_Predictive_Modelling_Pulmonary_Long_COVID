@@ -1,0 +1,142 @@
+Loading data...
+Dataset: 185 samples, 7334 features
+Target distribution: [ 84 101] (0=Control, 1=Long COVID)
+
+================================================================================
+Nested CV: BalancedRF
+================================================================================
+[BalancedRF | fold 01] acc=0.9189 f1=0.9231 roc_auc=1.0000 thr=0.680 nfeat=21
+[BalancedRF | fold 02] acc=0.9459 f1=0.9474 roc_auc=1.0000 thr=0.752 nfeat=27
+[BalancedRF | fold 03] acc=0.9730 f1=0.9744 roc_auc=1.0000 thr=0.657 nfeat=29
+[BalancedRF | fold 04] acc=1.0000 f1=1.0000 roc_auc=1.0000 thr=0.508 nfeat=21
+[BalancedRF | fold 05] acc=0.9730 f1=0.9756 roc_auc=1.0000 thr=0.411 nfeat=22
+[BalancedRF | fold 06] acc=0.9459 f1=0.9524 roc_auc=0.9911 thr=0.464 nfeat=18
+[BalancedRF | fold 07] acc=0.9189 f1=0.9189 roc_auc=0.9971 thr=0.752 nfeat=28
+[BalancedRF | fold 08] acc=0.9459 f1=0.9474 roc_auc=0.9912 thr=0.645 nfeat=20
+[BalancedRF | fold 09] acc=0.9459 f1=0.9474 roc_auc=1.0000 thr=0.810 nfeat=19
+[BalancedRF | fold 10] acc=0.9189 f1=0.9189 roc_auc=1.0000 thr=0.745 nfeat=28
+[BalancedRF | fold 11] acc=0.8919 f1=0.8947 roc_auc=0.9881 thr=0.795 nfeat=14
+[BalancedRF | fold 12] acc=0.8919 f1=0.8889 roc_auc=1.0000 thr=0.818 nfeat=20
+[BalancedRF | fold 13] acc=0.9730 f1=0.9744 roc_auc=1.0000 thr=0.750 nfeat=13
+[BalancedRF | fold 14] acc=0.9730 f1=0.9744 roc_auc=1.0000 thr=0.735 nfeat=29
+[BalancedRF | fold 15] acc=0.9189 f1=0.9231 roc_auc=0.9882 thr=0.517 nfeat=20
+
+Top 15 biomarkers for BalancedRF:
+                                       feature  importance
+x1_Cytokines_Cortisol_Obs_Conc_ng/mL_GG21.1_ML    0.225732
+         x1_Flow_Cyt_CD66bCD16hiNeutMFInonnorm    0.118964
+          x1_Flow_Cyt_CD66bTotalNeutMFInonnorm    0.115767
+                x1_Flow_Cyt_CD66bEosMFInonnorm    0.080293
+                            x0_Vac_Num_at_Draw    0.047024
+                   x0_LC_Symptom_weakness_ML_8    0.043054
+                  x0_LC_Symptom_pins_need_ML_2    0.032416
+               x0_LC_Symptom_jtpain_swell_ML_8    0.029667
+                      x0_LC_Symptom_sleep_ML_2    0.029232
+                       x0_LC_Symptom_mood_ML_2    0.028684
+                    x0_LC_Symptom_dyspnea_ML_5    0.027336
+                  x0_LC_Symptom_chestpain_ML_6    0.027315
+                     x0_LC_Symptom_sweats_ML_3    0.025944
+               x0_LC_Symptom_mmpain_cramp_ML_8    0.025844
+                   x1_Flow_Cyt_CD4IL4pofCD4_ML    0.025354
+
+================================================================================
+Nested CV: LogisticRegression
+================================================================================
+[LogisticRegression | fold 01] acc=0.9189 f1=0.9231 roc_auc=1.0000 thr=0.758 nfeat=17
+[LogisticRegression | fold 02] acc=1.0000 f1=1.0000 roc_auc=1.0000 thr=0.444 nfeat=14
+[LogisticRegression | fold 03] acc=1.0000 f1=1.0000 roc_auc=1.0000 thr=0.464 nfeat=15
+[LogisticRegression | fold 04] acc=1.0000 f1=1.0000 roc_auc=1.0000 thr=0.785 nfeat=14
+[LogisticRegression | fold 05] acc=1.0000 f1=1.0000 roc_auc=1.0000 thr=0.658 nfeat=17
+[LogisticRegression | fold 06] acc=0.9189 f1=0.9231 roc_auc=0.9970 thr=0.645 nfeat=16
+[LogisticRegression | fold 07] acc=0.9189 f1=0.9189 roc_auc=1.0000 thr=0.668 nfeat=14
+[LogisticRegression | fold 08] acc=0.9730 f1=0.9744 roc_auc=1.0000 thr=0.649 nfeat=12
+[LogisticRegression | fold 09] acc=1.0000 f1=1.0000 roc_auc=1.0000 thr=0.427 nfeat=7
+[LogisticRegression | fold 10] acc=0.9730 f1=0.9744 roc_auc=1.0000 thr=0.655 nfeat=15
+[LogisticRegression | fold 11] acc=0.9459 f1=0.9500 roc_auc=0.9940 thr=0.606 nfeat=14
+[LogisticRegression | fold 12] acc=0.9189 f1=0.9189 roc_auc=1.0000 thr=0.662 nfeat=14
+[LogisticRegression | fold 13] acc=1.0000 f1=1.0000 roc_auc=1.0000 thr=0.805 nfeat=12
+[LogisticRegression | fold 14] acc=0.9730 f1=0.9744 roc_auc=1.0000 thr=0.701 nfeat=16
+[LogisticRegression | fold 15] acc=0.9189 f1=0.9189 roc_auc=1.0000 thr=0.526 nfeat=15
+
+Top 15 biomarkers for LogisticRegression:
+                                       feature  importance
+x1_Cytokines_Cortisol_Obs_Conc_ng/mL_GG21.1_ML    0.753852
+                     x0_LC_Symptom_sweats_ML_3    0.640607
+                   x1_Flow_Cyt_CD4IL4pofCD4_ML    0.603721
+               x0_LC_Symptom_mmpain_cramp_ML_8    0.548064
+               x0_LC_Symptom_indig_reflux_ML_7    0.539895
+                            x0_Vac_Num_at_Draw    0.535995
+                  x0_LC_Symptom_chestpain_ML_6    0.500957
+                    x0_LC_Symptom_dyspnea_ML_5    0.499896
+                      x0_LC_Symptom_sleep_ML_2    0.497890
+                   x0_LC_Symptom_weakness_ML_8    0.490234
+                     x0_LC_Symptom_memory_ML_2    0.483110
+                                   x0_PMH_none    0.466561
+               x0_LC_Symptom_jtpain_swell_ML_8    0.462184
+          x1_Flow_Cyt_CD66bTotalNeutMFInonnorm    0.395809
+                     x0_LC_Symptom_vision_ML_2    0.389018
+
+================================================================================
+Nested CV: RandomForest
+================================================================================
+[RandomForest | fold 01] acc=0.9459 f1=0.9500 roc_auc=1.0000 thr=0.567 nfeat=26
+[RandomForest | fold 02] acc=0.9730 f1=0.9744 roc_auc=1.0000 thr=0.596 nfeat=27
+[RandomForest | fold 03] acc=0.9730 f1=0.9744 roc_auc=1.0000 thr=0.539 nfeat=16
+[RandomForest | fold 04] acc=1.0000 f1=1.0000 roc_auc=1.0000 thr=0.576 nfeat=15
+[RandomForest | fold 05] acc=0.9459 f1=0.9500 roc_auc=0.9971 thr=0.583 nfeat=26
+[RandomForest | fold 06] acc=0.9189 f1=0.9231 roc_auc=0.9940 thr=0.690 nfeat=22
+[RandomForest | fold 07] acc=0.9459 f1=0.9500 roc_auc=0.9941 thr=0.604 nfeat=17
+[RandomForest | fold 08] acc=0.9730 f1=0.9744 roc_auc=0.9941 thr=0.620 nfeat=16
+[RandomForest | fold 09] acc=0.9459 f1=0.9474 roc_auc=1.0000 thr=0.681 nfeat=14
+[RandomForest | fold 10] acc=0.9459 f1=0.9474 roc_auc=0.9971 thr=0.634 nfeat=28
+[RandomForest | fold 11] acc=0.9459 f1=0.9500 roc_auc=0.9851 thr=0.739 nfeat=12
+[RandomForest | fold 12] acc=1.0000 f1=1.0000 roc_auc=1.0000 thr=0.672 nfeat=14
+[RandomForest | fold 13] acc=1.0000 f1=1.0000 roc_auc=1.0000 thr=0.580 nfeat=14
+[RandomForest | fold 14] acc=1.0000 f1=1.0000 roc_auc=1.0000 thr=0.556 nfeat=29
+[RandomForest | fold 15] acc=0.8649 f1=0.8649 roc_auc=0.9882 thr=0.579 nfeat=17
+
+Top 15 biomarkers for RandomForest:
+                                       feature  importance
+x1_Cytokines_Cortisol_Obs_Conc_ng/mL_GG21.1_ML    0.269513
+         x1_Flow_Cyt_CD66bCD16hiNeutMFInonnorm    0.123313
+          x1_Flow_Cyt_CD66bTotalNeutMFInonnorm    0.088126
+                x1_Flow_Cyt_CD66bEosMFInonnorm    0.085624
+                   x0_LC_Symptom_weakness_ML_8    0.048646
+                            x0_Vac_Num_at_Draw    0.037671
+               x0_LC_Symptom_jtpain_swell_ML_8    0.033068
+                  x0_LC_Symptom_pins_need_ML_2    0.029569
+                       x0_LC_Symptom_mood_ML_2    0.029006
+                  x0_LC_Symptom_confusion_ML_2    0.028873
+                  x0_LC_Symptom_chestpain_ML_6    0.028337
+                      x0_LC_Symptom_sleep_ML_2    0.026530
+                     x0_LC_Symptom_sweats_ML_3    0.024619
+               x0_LC_Symptom_indig_reflux_ML_7    0.023117
+                    x0_LC_Symptom_dyspnea_ML_5    0.022011
+
+================================================================================
+Nested CV: GradientBoosting
+================================================================================
+[GradientBoosting | fold 01] acc=0.8378 f1=0.8333 roc_auc=1.0000 thr=0.963 nfeat=20
+[GradientBoosting | fold 02] acc=0.8919 f1=0.8889 roc_auc=1.0000 thr=0.941 nfeat=14
+[GradientBoosting | fold 03] acc=0.9459 f1=0.9474 roc_auc=0.9971 thr=0.953 nfeat=22
+[GradientBoosting | fold 04] acc=1.0000 f1=1.0000 roc_auc=1.0000 thr=1.000 nfeat=11
+[GradientBoosting | fold 05] acc=0.8649 f1=0.8571 roc_auc=1.0000 thr=1.000 nfeat=16
+[GradientBoosting | fold 06] acc=0.8108 f1=0.8000 roc_auc=0.9911 thr=0.998 nfeat=14
+[GradientBoosting | fold 07] acc=0.8919 f1=0.8889 roc_auc=0.9912 thr=0.987 nfeat=14
+[GradientBoosting | fold 08] acc=0.9730 f1=0.9744 roc_auc=1.0000 thr=1.000 nfeat=11
+[GradientBoosting | fold 09] acc=0.9730 f1=0.9744 roc_auc=1.0000 thr=1.000 nfeat=7
+[GradientBoosting | fold 10] acc=0.9459 f1=0.9474 roc_auc=0.9971 thr=0.954 nfeat=15
+[GradientBoosting | fold 11] acc=0.8649 f1=0.8649 roc_auc=0.9821 thr=1.000 nfeat=12
+[GradientBoosting | fold 12] acc=0.9189 f1=0.9189 roc_auc=1.0000 thr=0.999 nfeat=14
+[GradientBoosting | fold 13] acc=0.9730 f1=0.9744 roc_auc=1.0000 thr=1.000 nfeat=9
+[GradientBoosting | fold 14] acc=0.8919 f1=0.8889 roc_auc=1.0000 thr=0.996 nfeat=19
+[GradientBoosting | fold 15] acc=0.8919 f1=0.8889 roc_auc=0.9882 thr=1.000 nfeat=15
+
+================================================================================
+FINAL SUMMARY
+================================================================================
+             model  folds  accuracy_mean  accuracy_sd  balanced_accuracy_mean  precision_mean  recall_mean  f1_mean  roc_auc_mean  avg_precision_mean  accuracy_ci_low  accuracy_ci_high  roc_auc_ci_low  roc_auc_ci_high  f1_ci_low  f1_ci_high
+        BalancedRF     15       0.942342     0.032087                0.946297        0.990142     0.904603 0.944053      0.997042            0.997758         0.926126          0.958559        0.994489         0.999216   0.928079    0.960125
+LogisticRegression     15       0.963964     0.036356                0.967302        1.000000     0.934603 0.965066      0.999405            0.999580         0.945946          0.980180        0.998413         1.000000   0.946857    0.981370
+      RandomForest     15       0.958559     0.036642                0.961340        0.989412     0.934444 0.960384      0.996650            0.997436         0.940541          0.974775        0.994262         0.998632   0.942092    0.976410
+  GradientBoosting     15       0.911712     0.055452                0.919762        1.000000     0.839524 0.909842      0.996450            0.997258         0.882883          0.938739        0.993487         0.998824   0.880215    0.937359
